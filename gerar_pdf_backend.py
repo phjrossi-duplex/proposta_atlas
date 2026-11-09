@@ -1,123 +1,77 @@
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import mm
-from reportlab.pdfgen import canvas
-from reportlab.lib.colors import HexColor
+from pptx import Presentation
 from datetime import datetime
 import io
 import os
+import traceback
 
 app = Flask(__name__)
 CORS(app)
 
-VERDE = HexColor("#2F4A3F")
-DOURADO = HexColor("#B08D57")
-TEXTO = HexColor("#2C1E16")
-OFFWHITE = HexColor("#F6F4EF")
+TEMPLATE = os.path.join(os.path.dirname(__file__), "template.pptx")
 
-def format_money(v):
+def format_br(v):
     return f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 @app.route("/gerar", methods=["POST"])
 def gerar():
-    data = request.json or {}
-    nome = data.get("nome", "CONDOMINIO").upper()
-    hoje = datetime.now()
-    data_str = hoje.strftime("%d/%m/%Y")
-    arquivo_data = hoje.strftime("%Y.%m.%d")
+    try:
+        data = request.json or {}
+        nome = data.get("nome", "CONDOMINIO").upper()
+        hoje = datetime.now()
+        data_str = hoje.strftime("%d/%m/%Y")
+        arquivo_data = hoje.strftime("%Y.%m.%d")
 
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=A4)
-    w, h = A4
+        if not os.path.exists(TEMPLATE):
+            return jsonify({"error": "template.pptx não encontrado"}), 500
 
-    # Cabeçalho
-    c.setFillColor(VERDE)
-    c.rect(0, h - 40*mm, w, 40*mm, fill=1, stroke=0)
-    c.setFillColor(OFFWHITE)
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(20*mm, h - 22*mm, "ATLAS HALL")
-    c.setFont("Helvetica", 10)
-    c.drawString(20*mm, h - 28*mm, "PROPOSTA COMERCIAL · ADMINISTRAÇÃO DE CONDOMÍNIOS")
+        prs = Presentation(TEMPLATE)
 
-    # Título
-    c.setFillColor(TEXTO)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(20*mm, h - 55*mm, f"PROPOSTA — {nome}")
-    c.setFont("Helvetica", 10)
-    c.drawString(20*mm, h - 62*mm, f"Data: {data_str}")
+        # Capa (slide 0) — substitui nome e data
+        for shape in prs.slides[0].shapes:
+            if shape.has_text_frame:
+                for p in shape.text_frame.paragraphs:
+                    for run in p.runs:
+                        txt = run.text
+                        if "NOME DO CONDOMINIO" in txt or "CONDOMÍNIO" in txt.upper():
+                            run.text = nome
+                        if "ANO.MÊS.DIA" in txt or "DATA" in txt.upper():
+                            run.text = data_str
 
-    # Dados do condomínio
-    y = h - 75*mm
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(20*mm, y, "DADOS DO CONDOMÍNIO")
-    y -= 8*mm
-    c.setFont("Helvetica", 10)
-    linhas = [
-        f"Perfil: {data.get('perfil', '—')}  ·  Unidades: {data.get('unidades', '—')}  ·  Tamanho: {data.get('tamanho', '—').upper()}",
-        f"Saldo: {data.get('saldo', '—')}  ·  Conta: {data.get('conta', '—')}  ·  Funcionários: {data.get('func', '—')}",
-        f"Garantidora: {data.get('garantidora', '—')}",
-    ]
-    for linha in linhas:
-        c.drawString(20*mm, y, linha)
-        y -= 6*mm
+        # Slide 8 (índice 7) — 4 valores financeiros
+        if len(prs.slides) > 7:
+            slide8 = prs.slides[7]
+            adm = float(data.get("admAtual", 0))
+            adm_un = float(data.get("admPorUnidade", 0))
+            proposta = float(data.get("totalProposta", data.get("totalSugestao", 0)))
+            prop_un = float(data.get("propostaPorUnidade", data.get("precoUnidadeSugestao", 0)))
+            valores = [adm, adm_un, proposta, prop_un]
+            idx = 0
+            for shape in slide8.shapes:
+                if shape.has_text_frame and idx < 4:
+                    for p in shape.text_frame.paragraphs:
+                        for run in p.runs:
+                            if any(x in run.text for x in ["R$", "0,00", "VALOR", "TOTAL"]):
+                                run.text = format_br(valores[idx])
+                                idx += 1
+                                break
+                        if idx >= 4:
+                            break
 
-    # Valores
-    y -= 6*mm
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(20*mm, y, "VALORES")
-    y -= 8*mm
-    c.setFont("Helvetica", 10)
-    adm = data.get("admAtual", 0)
-    adm_un = data.get("admPorUnidade", 0)
-    sug = data.get("totalSugestao", 0)
-    sug_un = data.get("precoUnidadeSugestao", 0)
-    prop = data.get("totalProposta", sug)
-    prop_un = data.get("propostaPorUnidade", sug_un)
+        # Salva em memória e devolve
+        buffer = io.BytesIO()
+        prs.save(buffer)
+        buffer.seek(0)
+        filename = f"{arquivo_data} - Proposta Atlas Hall - {nome}.pptx"
+        return send_file(buffer, as_attachment=True, download_name=filename, mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation")
 
-    valores = [
-        f"ADM Atual: {format_money(adm)}  ({format_money(adm_un)}/un)",
-        f"Sugestão Atlas: {format_money(sug)}  ({format_money(sug_un)}/un)",
-        f"Proposta Atlas: {format_money(prop)}  ({format_money(prop_un)}/un)",
-    ]
-    for v in valores:
-        c.drawString(20*mm, y, v)
-        y -= 6*mm
-
-    # Status
-    y -= 4*mm
-    status = data.get("status", "—")
-    detalhe = data.get("statusDetalhe", "")
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(20*mm, y, f"STATUS: {status}")
-    if detalhe:
-        y -= 6*mm
-        c.setFont("Helvetica", 9)
-        c.drawString(20*mm, y, detalhe)
-
-    motivo = data.get("motivo", "")
-    if motivo:
-        y -= 8*mm
-        c.setFont("Helvetica-Bold", 10)
-        c.drawString(20*mm, y, "MOTIVO:")
-        y -= 6*mm
-        c.setFont("Helvetica", 9)
-        c.drawString(20*mm, y, motivo[:120])
-
-    # Rodapé
-    c.setFillColor(DOURADO)
-    c.rect(0, 0, w, 15*mm, fill=1, stroke=0)
-    c.setFillColor(OFFWHITE)
-    c.setFont("Helvetica", 8)
-    c.drawString(20*mm, 6*mm, "Documento gerado pela ferramenta de precificação Atlas Hall")
-
-    c.save()
-    buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name=f"{arquivo_data} - Proposta Atlas Hall - {nome}.pdf", mimetype="application/pdf")
+    except Exception as e:
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
 @app.route("/health")
 def health():
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "template": os.path.exists(TEMPLATE)})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
