@@ -543,8 +543,6 @@ function atualizar() {
     } else if (descontoMaiorQue10) {
       status = "CONSULTAR CONSELHO";
       statusDetalhe = `DESCONTO DE ${Math.abs(pctVsSug).toFixed(1)}% SOBRE A SUGESTÃO (LIMITE SEM CONSELHO: 10%)`;
-    } else if (Math.abs(totalProposta - admAtual) < 0.01) {
-      status = "VALOR IGUAL AO DA CONCORRÊNCIA";
     } else {
       status = "OK";
     }
