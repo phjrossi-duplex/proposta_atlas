@@ -293,7 +293,7 @@
     <h3>COMPARATIVOS DA PROPOSTA</h3>
     <div id="result-content" class="result">PREENCHA OS DADOS e, se quiser, o rascunho da proposta.</div>
     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn btn-success" onclick="gerarProposta()">Gerar Proposta (Imprimir/PDF)</button>
+      <button class="btn btn-success" id="btn-pdf" onclick="gerarProposta()" disabled style="opacity:0.5; cursor:not-allowed;">Gerar Proposta (PDF)</button>
       <button class="btn btn-secondary" onclick="copiarResumo()">Copiar Resumo</button>
       <button class="btn" onclick="enviarWhatsApp()" style="background:#25D366;">Enviar no WhatsApp</button>
     </div>
@@ -620,6 +620,11 @@ ${c.motivo ? "*MOTIVO:* " + c.motivo : ""}`;
 
   const url = "https://wa.me/?text=" + encodeURIComponent(texto);
   window.open(url, "_blank");
+  // Libera o botão de PDF após o envio
+  const btn = document.getElementById("btn-pdf");
+  btn.disabled = false;
+  btn.style.opacity = "1";
+  btn.style.cursor = "pointer";
 }
 
 function copiarResumo() {
@@ -640,46 +645,39 @@ function gerarProposta() {
     alert("PREENCHA OS DADOS PRINCIPAIS PRIMEIRO");
     return;
   }
-  const c = lastCalc;
-  const dataHoje = new Date().toLocaleDateString("pt-BR");
-  const html = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Proposta Atlas Hall - ${c.nome}</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 40px; color: #2C1E16; }
-  h1 { color: #2F4A3F; border-bottom: 2px solid #B08D57; padding-bottom: 8px; }
-  .info { margin: 16px 0; }
-  .info p { margin: 6px 0; }
-  .destaque { background: #f6f4ef; padding: 12px; border-radius: 8px; margin: 12px 0; }
-  .status { font-weight: bold; }
-  @media print { body { margin: 20px; } }
-</style>
-</head>
-<body>
-  <h1>PROPOSTA COMERCIAL - ATLAS HALL</h1>
-  <p><strong>Data:</strong> ${dataHoje}</p>
-  <div class="info">
-    <p><strong>Condomínio:</strong> ${c.nome.toUpperCase()}</p>
-    <p><strong>Perfil:</strong> ${c.perfil} · ${c.tamanho.toUpperCase()} (${c.unidades} unidades)</p>
-    <p><strong>Saldo:</strong> ${c.saldo} · Conta: ${c.conta} · Funcionários: ${c.func} · Garantidora: ${c.garantidora}</p>
-  </div>
-  <div class="destaque">
-    <p><strong>ADM Atual:</strong> ${formatMoney(c.admAtual)} (${formatMoney(c.admPorUnidade)}/un)</p>
-    <p><strong>Sugestão Atlas:</strong> ${formatMoney(c.totalSugestao)} (${formatMoney(c.precoUnidadeSugestao)}/un)</p>
-    ${c.hasProposta ? `<p><strong>Proposta Atlas:</strong> ${formatMoney(c.totalProposta)} (${formatMoney(c.propostaPorUnidade)}/un)</p>` : ""}
-    <p><strong>Status:</strong> <span class="status">${c.status}${c.statusDetalhe ? " — " + c.statusDetalhe : ""}</span></p>
-    ${c.motivo ? `<p><strong>Motivo:</strong> ${c.motivo}</p>` : ""}
-  </div>
-  <p style="font-size:0.85rem; color:#666; margin-top:40px;">Documento gerado pela ferramenta de precificação Atlas Hall.</p>
-  <scr' + 'ipt>window.onload = function() { window.print(); }</scr' + 'ipt>
-</body>
-</html>`;
-  const w = window.open("", "_blank");
-  w.document.write(html);
-  w.document.close();
+  const btn = document.getElementById("btn-pdf");
+  btn.textContent = "Gerando PDF...";
+  btn.disabled = true;
+
+  // URL do serviço de geração (substitua após o deploy)
+  const BACKEND = "https://seu-servico.onrender.com/gerar";
+
+  fetch(BACKEND, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(lastCalc)
+  })
+  .then(r => {
+    if (!r.ok) throw new Error("Erro no serviço");
+    return r.blob();
+  })
+  .then(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const nome = (lastCalc.nome || "condominio").replace(/\s+/g, "-");
+    const data = new Date().toISOString().slice(0,10).replace(/-/g,".");
+    a.download = `${data} - Proposta Atlas Hall - ${nome}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    btn.textContent = "Gerar Proposta (PDF)";
+    btn.disabled = false;
+  })
+  .catch(err => {
+    alert("Erro ao gerar PDF. Verifique se o serviço está no ar.\n" + err.message);
+    btn.textContent = "Gerar Proposta (PDF)";
+    btn.disabled = false;
+  });
 }
 </script>
 </body>
