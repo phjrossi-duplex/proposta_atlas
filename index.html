@@ -295,7 +295,7 @@
     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn btn-secondary" onclick="copiarResumo()">Copiar Resumo</button>
       <button class="btn" onclick="enviarWhatsApp()" style="background:#25D366;">Enviar no WhatsApp</button>
-      <button class="btn btn-success" id="btn-pdf" onclick="gerarProposta()" disabled style="opacity:0.5; cursor:not-allowed;">Gerar Proposta (PDF)</button>
+      <button class="btn btn-success" id="btn-pdf" onclick="gerarProposta()" disabled style="opacity:0.5; cursor:not-allowed;">Gerar Proposta (PPTX)</button>
     </div>
   </div>
 </div>
@@ -665,10 +665,7 @@ function gerarProposta() {
     a.href = URL.createObjectURL(blob);
     const nome = (lastCalc.nome || "condominio").replace(/\s+/g, "-");
     const data = new Date().toISOString().slice(0,10).replace(/-/g,".");
-    const isPdf = blob.type.includes("pdf") || blob.size > 100000;
-    a.download = isPdf 
-      ? `${data} - Proposta Atlas Hall - ${nome}.pdf`
-      : `${data} - Proposta Atlas Hall - ${nome}.pptx`;
+    a.download = `${data} - Proposta Atlas Hall - ${nome}.pptx`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
