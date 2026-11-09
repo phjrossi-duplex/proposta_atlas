@@ -598,13 +598,21 @@ function enviarWhatsApp() {
     return;
   }
   const c = lastCalc;
-  const texto = `*PROPOSTA ${c.nome.toUpperCase()}*
+  const precisaConselho = c.status && c.status.includes("CONSULTAR CONSELHO");
+  let texto = `*PROPOSTA ${c.nome.toUpperCase()}*
 ${c.perfil} / ${c.unidades} UNIDADES / ${c.saldo} / ${c.conta} / ${c.func} / ${c.garantidora === "SIM" ? "C/ GARANTIDORA" : "S/ GARANTIDORA"}
 *PREÇO PAGO ADM ATUAL:* ${formatMoney(c.admAtual)} / ${formatMoney(c.admPorUnidade)}un
 *SUGESTÃO PADRÃO ATLAS:* ${formatMoney(c.totalSugestao)} / ${formatMoney(c.precoUnidadeSugestao)}un
 ${c.hasProposta ? `*AJUSTE PROPOSTA ATLAS:* ${formatMoney(c.totalProposta)} / ${formatMoney(c.propostaPorUnidade)}un` : ""}
 *STATUS:* ${c.status}${c.statusDetalhe ? " — " + c.statusDetalhe : ""}
 ${c.motivo ? "*MOTIVO:* " + c.motivo : ""}`;
+
+  if (precisaConselho) {
+    texto += `\n\n@PEDRO ROSSI @LUCAS OLIBONI\n*CONSELHEIROS, ESTÃO DE ACORDO COM ESTA PROPOSTA?*\nResponda SIM ou NÃO para liberar o comercial.`;
+  } else if (c.status === "OK") {
+    texto += `\n\n*PARA CIÊNCIA DOS CONSELHEIROS* (proposta dentro das regras).`;
+  }
+
   const url = "https://wa.me/?text=" + encodeURIComponent(texto);
   window.open(url, "_blank");
 }
