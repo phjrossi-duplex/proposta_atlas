@@ -94,7 +94,7 @@
     border-color: var(--dourado);
     box-shadow: 0 0 0 2px rgba(176, 141, 87, 0.12);
   }
-  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   @media (max-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 600px) { .grid, .grid-2 { grid-template-columns: 1fr; } }
@@ -223,7 +223,7 @@
         </select>
       </div>
       <div>
-        <label>TOTAL PAGO ADM ATUAL (TAXA DE ADMINISTRAÇÃO + TAXINHAS)</label>
+        <label>TOTAL ADM ATUAL (TX ADM + TAXINHAS)</label>
         <input id="admAtual" type="number" step="0.01" placeholder="" oninput="atualizar()">
       </div>
     </div>
