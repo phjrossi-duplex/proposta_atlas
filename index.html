@@ -366,7 +366,7 @@ function formatMoney(v) {
 }
 
 function unlock() {
-  const v = document.getElementById("pw").value;
+  const v = (document.getElementById("pw").value || "").trim();
   if (v === SENHA) {
     document.getElementById("gate").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
@@ -461,7 +461,6 @@ function atualizar() {
     document.getElementById("adm-total").textContent = formatMoney(admAtual);
     document.getElementById("adm-un").textContent = unidades ? formatMoney(admAtual/unidades) : "—";
     document.getElementById("result-content").innerHTML = "<p>PREENCHA OS DADOS PRINCIPAIS PARA VER A SUGESTÃO.</p>";
-    document.getElementById("charts-area").style.display = "none";
     return;
   }
 
@@ -475,7 +474,6 @@ function atualizar() {
 
   if (!tabela) {
     document.getElementById("result-content").innerHTML = "<p>Combinação não encontrada. Consulte o conselho.</p>";
-    document.getElementById("charts-area").style.display = "none";
     return;
   }
 
