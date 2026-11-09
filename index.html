@@ -614,6 +614,8 @@ ${c.motivo ? "*MOTIVO:* " + c.motivo : ""}`;
   const url = "https://wa.me/?text=" + encodeURIComponent(texto);
   window.open(url, "_blank");
 }
+
+function copiarResumo() {
   if (!lastCalc) return;
   const c = lastCalc;
   const texto = `PROPOSTA ${c.nome}
@@ -665,7 +667,7 @@ function gerarProposta() {
     ${c.motivo ? `<p><strong>Motivo:</strong> ${c.motivo}</p>` : ""}
   </div>
   <p style="font-size:0.85rem; color:#666; margin-top:40px;">Documento gerado pela ferramenta de precificação Atlas Hall.</p>
-  <script>window.onload = function() { window.print(); }</script>
+  <scr' + 'ipt>window.onload = function() { window.print(); }</scr' + 'ipt>
 </body>
 </html>`;
   const w = window.open("", "_blank");
