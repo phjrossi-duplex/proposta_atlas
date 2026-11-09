@@ -599,7 +599,8 @@ function enviarWhatsApp() {
   const pctVsAdm = (c.hasProposta && c.admAtual) ? (diffVsAdm / c.admAtual * 100) : 0;
   const diffUn = c.hasProposta && c.unidades ? (diffVsAdm / c.unidades) : 0;
 
-  let texto = `*PROPOSTA ${c.nome.toUpperCase()}*
+  const dataProposta = new Date().toLocaleDateString("pt-BR");
+  let texto = `*PROPOSTA ${c.nome.toUpperCase()}* — ${dataProposta}
 
 * ${c.perfil} / ${c.unidades} UNIDADES / ${c.saldo} / ${c.conta} / ${c.func} / ${c.garantidora === "SIM" ? "C/ GARANTIDORA" : "S/ GARANTIDORA"}
 * *PREÇO PAGO ADM ATUAL:* ${formatMoney(c.admAtual)} / ${formatMoney(c.admPorUnidade)}un
