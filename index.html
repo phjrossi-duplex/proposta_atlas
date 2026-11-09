@@ -304,7 +304,7 @@
       </div>
     </div>
     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn btn-success" onclick="gerarProposta()">Gerar Proposta (PDF)</button>
+      <button class="btn btn-success" onclick="gerarProposta()">Gerar Proposta (Imprimir/PDF)</button>
       <button class="btn btn-secondary" onclick="copiarResumo()">Copiar Resumo</button>
     </div>
   </div>
@@ -646,15 +646,46 @@ function gerarProposta() {
     alert("PREENCHA OS DADOS PRINCIPAIS PRIMEIRO");
     return;
   }
-  const data = JSON.stringify(lastCalc, null, 2);
-  const blob = new Blob([data], {type: "application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `dados-proposta-${(lastCalc.nome || "condominio").replace(/\s+/g,"-")}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  alert("Dados da proposta salvos em JSON.\nUse o script gerar_proposta.py para gerar o PDF final a partir deste arquivo.");
+  const c = lastCalc;
+  const dataHoje = new Date().toLocaleDateString("pt-BR");
+  const html = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Proposta Atlas Hall - ${c.nome}</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 40px; color: #2C1E16; }
+  h1 { color: #2F4A3F; border-bottom: 2px solid #B08D57; padding-bottom: 8px; }
+  .info { margin: 16px 0; }
+  .info p { margin: 6px 0; }
+  .destaque { background: #f6f4ef; padding: 12px; border-radius: 8px; margin: 12px 0; }
+  .status { font-weight: bold; }
+  @media print { body { margin: 20px; } }
+</style>
+</head>
+<body>
+  <h1>PROPOSTA COMERCIAL - ATLAS HALL</h1>
+  <p><strong>Data:</strong> ${dataHoje}</p>
+  <div class="info">
+    <p><strong>Condomínio:</strong> ${c.nome.toUpperCase()}</p>
+    <p><strong>Perfil:</strong> ${c.perfil} · ${c.tamanho.toUpperCase()} (${c.unidades} unidades)</p>
+    <p><strong>Saldo:</strong> ${c.saldo} · Conta: ${c.conta} · Funcionários: ${c.func} · Garantidora: ${c.garantidora}</p>
+  </div>
+  <div class="destaque">
+    <p><strong>ADM Atual:</strong> ${formatMoney(c.admAtual)} (${formatMoney(c.admPorUnidade)}/un)</p>
+    <p><strong>Sugestão Atlas:</strong> ${formatMoney(c.totalSugestao)} (${formatMoney(c.precoUnidadeSugestao)}/un)</p>
+    ${c.hasProposta ? `<p><strong>Proposta Atlas:</strong> ${formatMoney(c.totalProposta)} (${formatMoney(c.propostaPorUnidade)}/un)</p>` : ""}
+    <p><strong>Status:</strong> <span class="status">${c.status}${c.statusDetalhe ? " — " + c.statusDetalhe : ""}</span></p>
+    ${c.motivo ? `<p><strong>Motivo:</strong> ${c.motivo}</p>` : ""}
+  </div>
+  <p style="font-size:0.85rem; color:#666; margin-top:40px;">Documento gerado pela ferramenta de precificação Atlas Hall.</p>
+  <script>window.onload = function() { window.print(); }</script>
+</body>
+</html>`;
+  const w = window.open("", "_blank");
+  w.document.write(html);
+  w.document.close();
 }
 </script>
 </body>
