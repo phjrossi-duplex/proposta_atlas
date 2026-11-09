@@ -666,7 +666,10 @@ function gerarProposta() {
     a.href = URL.createObjectURL(blob);
     const nome = (lastCalc.nome || "condominio").replace(/\s+/g, "-");
     const data = new Date().toISOString().slice(0,10).replace(/-/g,".");
-    a.download = `${data} - Proposta Atlas Hall - ${nome}.pdf`;
+    const isPdf = blob.type.includes("pdf") || blob.size > 100000;
+    a.download = isPdf 
+      ? `${data} - Proposta Atlas Hall - ${nome}.pdf`
+      : `${data} - Proposta Atlas Hall - ${nome}.pptx`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
