@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Proposta Atlas Hall - Precificação</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --expresso: #2C1E16;
@@ -293,19 +292,10 @@
   <div id="resultado" class="card">
     <h3>COMPARATIVOS DA PROPOSTA</h3>
     <div id="result-content" class="result">PREENCHA OS DADOS e, se quiser, o rascunho da proposta.</div>
-    <div class="charts-grid" id="charts-area" style="display:none;">
-      <div class="chart-box">
-        <h4>VALOR TOTAL (CONDOMÍNIO)</h4>
-        <canvas id="chartTotal" height="140"></canvas>
-      </div>
-      <div class="chart-box">
-        <h4>VALOR POR UNIDADE (R$/UN)</h4>
-        <canvas id="chartUnidade" height="140"></canvas>
-      </div>
-    </div>
     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn btn-success" onclick="gerarProposta()">Gerar Proposta (Imprimir/PDF)</button>
       <button class="btn btn-secondary" onclick="copiarResumo()">Copiar Resumo</button>
+      <button class="btn" onclick="enviarWhatsApp()" style="background:#25D366;">Enviar no WhatsApp</button>
     </div>
   </div>
 </div>
@@ -599,36 +589,25 @@ function atualizar() {
   }
   document.getElementById("result-content").innerHTML = html;
 
-  // Charts — total e por unidade (2 ou 3 barras)
-  try {
-    document.getElementById("charts-area").style.display = "grid";
-    const labels = hasProposta ? ["SUGESTÃO ATLAS", "ADM ATUAL", "PROPOSTA ATLAS"] : ["SUGESTÃO ATLAS", "ADM ATUAL"];
-    const totals = hasProposta ? [totalSugestao, admAtual, totalProposta] : [totalSugestao, admAtual];
-    const units = hasProposta ? [precoUnidadeSugestao, admPorUnidade, propostaPorUnidade] : [precoUnidadeSugestao, admPorUnidade];
-    const colors = hasProposta ? ["#2F4A3F", "#9B8B7F", "#B08D57"] : ["#2F4A3F", "#9B8B7F"];
-
-    if (window.chartTotal) window.chartTotal.destroy();
-    if (window.chartUnidade) window.chartUnidade.destroy();
-
-    window.chartTotal = new Chart(document.getElementById("chartTotal"), {
-      type: "bar",
-      data: { labels, datasets: [{ data: totals, backgroundColor: colors, borderRadius: 4 }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-    });
-
-    window.chartUnidade = new Chart(document.getElementById("chartUnidade"), {
-      type: "bar",
-      data: { labels, datasets: [{ data: units, backgroundColor: colors, borderRadius: 4 }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-    });
-  } catch (e) {
-    console.error("Erro ao gerar gráficos:", e);
-    document.getElementById("charts-area").innerHTML = "<p class='small'>Não foi possível carregar os gráficos.</p>";
-    document.getElementById("charts-area").style.display = "block";
-  }
+  // Charts removed
 }
 
-function copiarResumo() {
+function enviarWhatsApp() {
+  if (!lastCalc) {
+    alert("PREENCHA OS DADOS PRIMEIRO");
+    return;
+  }
+  const c = lastCalc;
+  const texto = `*PROPOSTA ${c.nome.toUpperCase()}*
+${c.perfil} / ${c.unidades} UNIDADES / ${c.saldo} / ${c.conta} / ${c.func} / ${c.garantidora === "SIM" ? "C/ GARANTIDORA" : "S/ GARANTIDORA"}
+*PREÇO PAGO ADM ATUAL:* ${formatMoney(c.admAtual)} / ${formatMoney(c.admPorUnidade)}un
+*SUGESTÃO PADRÃO ATLAS:* ${formatMoney(c.totalSugestao)} / ${formatMoney(c.precoUnidadeSugestao)}un
+${c.hasProposta ? `*AJUSTE PROPOSTA ATLAS:* ${formatMoney(c.totalProposta)} / ${formatMoney(c.propostaPorUnidade)}un` : ""}
+*STATUS:* ${c.status}${c.statusDetalhe ? " — " + c.statusDetalhe : ""}
+${c.motivo ? "*MOTIVO:* " + c.motivo : ""}`;
+  const url = "https://wa.me/?text=" + encodeURIComponent(texto);
+  window.open(url, "_blank");
+}
   if (!lastCalc) return;
   const c = lastCalc;
   const texto = `PROPOSTA ${c.nome}
