@@ -295,7 +295,7 @@
     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn btn-secondary" onclick="copiarResumo()">Copiar Resumo</button>
       <button class="btn" onclick="enviarWhatsApp()" style="background:#25D366;">Enviar no WhatsApp</button>
-      <button class="btn btn-success" id="btn-pdf" onclick="gerarProposta()" disabled style="opacity:0.5; cursor:not-allowed;">Gerar Proposta (PPTX)</button>
+      <button class="btn btn-success" id="btn-pdf" onclick="gerarProposta()" disabled style="opacity:0.5; cursor:not-allowed;">Gerar Proposta (PDF)</button>
     </div>
   </div>
 </div>
@@ -644,39 +644,129 @@ function gerarProposta() {
     alert("PREENCHA OS DADOS PRINCIPAIS PRIMEIRO");
     return;
   }
-  const btn = document.getElementById("btn-pdf");
-  btn.textContent = "Gerando PDF...";
-  btn.disabled = true;
+  const c = lastCalc;
+  const dataHoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }).toUpperCase();
 
-  // URL do serviço de geração (substitua após o deploy)
-  const BACKEND = "https://proposta-atlas.onrender.com/gerar";
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Proposta Atlas Hall - ${c.nome}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; color: #2C1E16; background: #fff; }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto 8mm; position: relative; page-break-after: always; overflow: hidden; background: #fff; }
+  .page:last-child { page-break-after: avoid; }
+  @media print {
+    body { margin: 0; }
+    .page { margin: 0; box-shadow: none; }
+  }
+  .verde { background: #2F4A3F; color: #fff; }
+  .offwhite { background: #F6F4EF; }
+  h1 { font-family: 'Playfair Display', serif; font-weight: 400; }
+  .footer { position: absolute; bottom: 8mm; left: 12mm; right: 12mm; font-size: 8px; letter-spacing: 1px; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
 
-  fetch(BACKEND, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(lastCalc)
-  })
-  .then(r => {
-    if (!r.ok) throw new Error("Erro no serviço");
-    return r.blob();
-  })
-  .then(blob => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    const nome = (lastCalc.nome || "condominio").replace(/\s+/g, "-");
-    const data = new Date().toISOString().slice(0,10).replace(/-/g,".");
-    a.download = `${data} - Proposta Atlas Hall - ${nome}.pptx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    btn.textContent = "Gerar Proposta (PDF)";
-    btn.disabled = false;
-  })
-  .catch(err => {
-    alert("Erro ao gerar PDF. Verifique se o serviço está no ar.\n" + err.message);
-    btn.textContent = "Gerar Proposta (PDF)";
-    btn.disabled = false;
-  });
+<!-- CAPA -->
+<div class="page" style="display:flex;">
+  <div style="width:45%; background:#F6F4EF; padding:25mm 12mm; display:flex; flex-direction:column; justify-content:space-between;">
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:30px;">
+        <div style="width:44px; height:44px; border:2px solid #2C1E16; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">AH</div>
+        <div>
+          <div style="font-weight:500; letter-spacing:2px; font-size:16px;">ATLAS HALL</div>
+          <div style="font-size:8px; letter-spacing:1px;">ADMINISTRAÇÃO DE CONDOMÍNIOS</div>
+        </div>
+      </div>
+      <h1 style="font-size:28px; line-height:1.15; margin-bottom:16px;">Uma gestão bem estruturada faz a diferença todos os dias.</h1>
+      <div style="width:36px; height:2px; background:#B08D57; margin:16px 0;"></div>
+      <div style="font-size:10px; letter-spacing:0.8px; margin-top:24px;">
+        <div>PROPOSTA DE ADMINISTRAÇÃO CONDOMINIAL</div>
+        <div style="font-weight:700; font-size:13px; margin:6px 0;">CONDOMÍNIO ${c.nome.toUpperCase()}</div>
+        <div>${dataHoje}</div>
+      </div>
+    </div>
+    <div style="font-size:8px; letter-spacing:1px; border-top:1px solid #B08D57; padding-top:8px;">ATLAS HALL | ADMINISTRAÇÃO DE CONDOMÍNIOS</div>
+  </div>
+  <div style="width:55%; background:#222;"></div>
+</div>
+
+<!-- PÁGINA DE VALORES -->
+<div class="page offwhite" style="padding:18mm 14mm;">
+  <div style="font-size:10px; letter-spacing:2px; margin-bottom:6px;">PROPOSTA COMERCIAL</div>
+  <h1 style="font-size:32px; margin-bottom:16px;">Cond. ${c.nome}</h1>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px;">
+    <div>
+      <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-align:center; margin-bottom:12px;">ADMINISTRADORA ATUAL</div>
+      <div style="font-size:9px; letter-spacing:1px; margin-bottom:8px;">CUSTOS VARIÁVEIS (RECORRENTES)</div>
+      <div style="font-size:8px; line-height:1.5; color:#666; margin-bottom:16px;">
+        • HONORÁRIO DE GESTÃO<br>• MATERIAL DE EXPEDIENTE<br>• E-SOCIAL / EFD-REINF<br>• DCTFWEB<br>• TROCA DE TITULARIDADE<br>• CERTIDÕES NEGATIVAS<br>• DEPARTAMENTO PESSOAL
+      </div>
+      <div style="text-align:center; font-weight:700; font-size:11px; margin:12px 0;">SEM PREVISIBILIDADE<br>(TAXA VARIÁVEL)</div>
+      <div style="border-top:1px solid #ccc; padding-top:10px; margin-top:16px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+          <span>CUSTO TOTAL</span>
+          <span style="color:#c0392b;">${formatMoney(c.admAtual)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-top:6px;">
+          <span>CUSTO MÉDIO POR UNIDADE</span>
+          <span style="color:#c0392b;">${formatMoney(c.admPorUnidade)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#2F4A3F; color:#fff; border-radius:10px; padding:16px; position:relative;">
+      <div style="text-align:center; margin-bottom:12px;">
+        <div style="font-size:10px; letter-spacing:1px;">ESCOPO RECORRENTE</div>
+        <div style="font-size:16px; font-weight:700; margin-top:4px;">TAXA ÚNICA</div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.3); padding-top:12px; margin-top:16px; text-align:center;">
+        <div style="font-size:20px; font-weight:700;">${formatMoney(c.totalProposta || c.totalSugestao)}</div>
+        <div style="font-size:13px; margin-top:6px;">${formatMoney(c.propostaPorUnidade || c.precoUnidadeSugestao)} / un</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:30px; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.4px; border-top:1px solid #B08D57; border-bottom:1px solid #B08D57; padding:10px 0;">
+    COM A ATLAS HALL O CONDOMÍNIO TERÁ PREVISIBILIDADE, SEM NOVAS TAXAS TODOS OS MESES.
+  </div>
+
+  <div class="footer">
+    <span>ATLAS HALL | ADMINISTRAÇÃO DE CONDOMÍNIOS</span>
+    <span>07 / 09</span>
+  </div>
+</div>
+
+<!-- PÁGINA FINAL -->
+<div class="page" style="display:flex;">
+  <div class="verde" style="width:45%; padding:25mm 12mm; display:flex; flex-direction:column; justify-content:center;">
+    <h1 style="font-size:26px; line-height:1.2; margin-bottom:16px;">Pronto para transformar a gestão do seu patrimônio?</h1>
+    <div style="width:36px; height:2px; background:#B08D57; margin:12px 0;"></div>
+    <div style="font-size:10px; letter-spacing:0.8px; margin-top:16px;">
+      <div style="font-weight:700; margin-bottom:6px;">KELLY VIVIANE | SÓCIA-DIRETORA</div>
+      <div style="margin:3px 0;">+55 51 9 8256 8932</div>
+      <div>KELLY.VIVIANE@ATLASHALL.COM.BR</div>
+    </div>
+    <div style="margin-top:30px; font-size:9px; letter-spacing:1px;">ATLASHALL.COM.BR &nbsp;|&nbsp; @ATLASHALL.ADM</div>
+  </div>
+  <div style="width:55%; background:#222;"></div>
+</div>
+
+<script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); }</script>
+</body>
+</html>`;
+
+  const w = window.open("", "_blank");
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+  } else {
+    alert("Permita pop-ups para gerar a proposta.");
+  }
 }
 </script>
 </body>
