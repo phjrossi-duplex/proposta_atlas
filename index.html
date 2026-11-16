@@ -286,6 +286,10 @@
         <label>MOTIVO DA PROPOSTA (PARA O CONSELHO)</label>
         <textarea id="motivo" rows="2" placeholder="" oninput="atualizar()" style="width:100%; padding:8px 10px; border-radius:8px; border:1.5px solid var(--areia); font-family:inherit; font-size:0.95rem;"></textarea>
       </div>
+      <div>
+        <label>TEXTO DO SELO (PÁGINA DE VALORES)</label>
+        <input id="selo" type="text" placeholder="EX: COM CONTA INDIVIDUAL ITAÚ" oninput="atualizar()" style="width:100%;">
+      </div>
     </div>
   </div>
 
@@ -554,7 +558,8 @@ function atualizar() {
     totalProposta: hasProposta ? totalProposta : totalSugestao,
     propostaPorUnidade: hasProposta ? propostaPorUnidade : precoUnidadeSugestao,
     diffTotal, diffPct, status, statusDetalhe, hasProposta,
-    motivo: document.getElementById("motivo").value.trim()
+    motivo: document.getElementById("motivo").value.trim(),
+    selo: document.getElementById("selo").value.trim() || "COM CONTA INDIVIDUAL ITAÚ"
   };
 
   let html = `<p><strong>CONDOMÍNIO:</strong> ${nome.toUpperCase()} · ${perfil} / ${tamanho.toUpperCase()} (${unidades} UN.)</p>`;
@@ -727,6 +732,9 @@ function gerarProposta() {
       <div style="border-top:1px solid rgba(255,255,255,0.3); padding-top:12px; margin-top:16px; text-align:center;">
         <div style="font-size:20px; font-weight:700;">${formatMoney(c.totalProposta || c.totalSugestao)}</div>
         <div style="font-size:13px; margin-top:6px;">${formatMoney(c.propostaPorUnidade || c.precoUnidadeSugestao)} / un</div>
+      </div>
+      <div style="position:absolute; right:-10px; bottom:20px; background:#B08D57; color:#fff; width:68px; height:68px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:7px; text-align:center; font-weight:700; padding:4px; line-height:1.15;">
+        ${(c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase().replace(/ /g, "<br>")}
       </div>
     </div>
   </div>
