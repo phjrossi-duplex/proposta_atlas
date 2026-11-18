@@ -404,6 +404,7 @@ function syncFromTotal() {
 }
 
 function atualizar() {
+  try {
   const nome = document.getElementById("nome").value.trim() || "CONDOMÍNIO";
   const perfil = document.getElementById("perfil").value;
   const unidades = parseFloat(document.getElementById("unidades").value) || 0;
@@ -577,6 +578,10 @@ function atualizar() {
   document.getElementById("result-content").innerHTML = html;
 
   // Charts removed
+  } catch (e) {
+    console.error(e);
+    document.getElementById("result-content").innerHTML = "<p style='color:red;'>Erro: " + e.message + "</p>";
+  }
 }
 
 function enviarWhatsApp() {
