@@ -641,131 +641,43 @@ function gerarProposta() {
     return;
   }
   const c = lastCalc;
+  const btn = document.getElementById("btn-pdf");
+  btn.textContent = "Gerando...";
+  btn.disabled = true;
+
   const dataHoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }).toUpperCase();
+  const fmt = (v) => formatMoney(v).replace("R$", "R$ ");
 
-  const html = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Proposta Atlas Hall - ${c.nome}</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Montserrat', sans-serif; color: #2C1E16; background: #fff; }
-  .page { width: 210mm; min-height: 297mm; margin: 0 auto 8mm; position: relative; page-break-after: always; overflow: hidden; background: #fff; }
-  .page:last-child { page-break-after: avoid; }
-  @media print {
-    body { margin: 0; }
-    .page { margin: 0; box-shadow: none; }
-  }
-  .verde { background: #2F4A3F; color: #fff; }
-  .offwhite { background: #F6F4EF; }
-  h1 { font-family: 'Playfair Display', serif; font-weight: 400; }
-  .footer { position: absolute; bottom: 8mm; left: 12mm; right: 12mm; font-size: 8px; letter-spacing: 1px; display: flex; justify-content: space-between; }
-</style>
-</head>
-<body>
+  fetch("proposta-modelo.svg")
+    .then(r => r.text())
+    .then(svg => {
+      // Substituições
+      svg = svg.replace(/Condomínio Riviera/g, "Condomínio " + c.nome);
+      svg = svg.replace(/CONDOMÍNIO PALÁCIO VALLERY/g, "CONDOMÍNIO " + c.nome.toUpperCase());
+      svg = svg.replace(/13 DE NOVEMBRO DE 2026/g, dataHoje);
+      svg = svg.replace(/R\$ 4\.789,00/g, fmt(c.admAtual));
+      svg = svg.replace(/R\$ 10,50/g, fmt(c.admPorUnidade));
+      svg = svg.replace(/R\$ 4\.104,00/g, fmt(c.totalProposta || c.totalSugestao));
+      svg = svg.replace(/R\$ 9,00/g, fmt(c.propostaPorUnidade || c.precoUnidadeSugestao));
+      // Selo
+      const selo = (c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase();
+      svg = svg.replace(/COM CONTA INDIVIDUAL ITAÚ/g, selo);
 
-<!-- CAPA -->
-<div class="page" style="display:flex;">
-  <div style="width:45%; background:#F6F4EF; padding:25mm 12mm; display:flex; flex-direction:column; justify-content:space-between;">
-    <div>
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:30px;">
-        <div style="width:44px; height:44px; border:2px solid #2C1E16; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">AH</div>
-        <div>
-          <div style="font-weight:500; letter-spacing:2px; font-size:16px;">ATLAS HALL</div>
-          <div style="font-size:8px; letter-spacing:1px;">ADMINISTRAÇÃO DE CONDOMÍNIOS</div>
-        </div>
-      </div>
-      <h1 style="font-size:28px; line-height:1.15; margin-bottom:16px;">Uma gestão bem estruturada faz a diferença todos os dias.</h1>
-      <div style="width:36px; height:2px; background:#B08D57; margin:16px 0;"></div>
-      <div style="font-size:10px; letter-spacing:0.8px; margin-top:24px;">
-        <div>PROPOSTA DE ADMINISTRAÇÃO CONDOMINIAL</div>
-        <div style="font-weight:700; font-size:13px; margin:6px 0;">CONDOMÍNIO ${c.nome.toUpperCase()}</div>
-        <div>${dataHoje}</div>
-      </div>
-    </div>
-    <div style="font-size:8px; letter-spacing:1px; border-top:1px solid #B08D57; padding-top:8px;">ATLAS HALL | ADMINISTRAÇÃO DE CONDOMÍNIOS</div>
-  </div>
-  <div style="width:55%; background:#222;"></div>
-</div>
-
-<!-- PÁGINA DE VALORES -->
-<div class="page offwhite" style="padding:18mm 14mm;">
-  <div style="font-size:10px; letter-spacing:2px; margin-bottom:6px;">PROPOSTA COMERCIAL</div>
-  <h1 style="font-size:32px; margin-bottom:16px;">Cond. ${c.nome}</h1>
-
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px;">
-    <div>
-      <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-align:center; margin-bottom:12px;">ADMINISTRADORA ATUAL</div>
-      <div style="font-size:9px; letter-spacing:1px; margin-bottom:8px;">CUSTOS VARIÁVEIS (RECORRENTES)</div>
-      <div style="font-size:8px; line-height:1.5; color:#666; margin-bottom:16px;">
-        • HONORÁRIO DE GESTÃO<br>• MATERIAL DE EXPEDIENTE<br>• E-SOCIAL / EFD-REINF<br>• DCTFWEB<br>• TROCA DE TITULARIDADE<br>• CERTIDÕES NEGATIVAS<br>• DEPARTAMENTO PESSOAL
-      </div>
-      <div style="text-align:center; font-weight:700; font-size:11px; margin:12px 0;">SEM PREVISIBILIDADE<br>(TAXA VARIÁVEL)</div>
-      <div style="border-top:1px solid #ccc; padding-top:10px; margin-top:16px;">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
-          <span>CUSTO TOTAL</span>
-          <span style="color:#c0392b;">${formatMoney(c.admAtual)}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-top:6px;">
-          <span>CUSTO MÉDIO POR UNIDADE</span>
-          <span style="color:#c0392b;">${formatMoney(c.admPorUnidade)}</span>
-        </div>
-      </div>
-    </div>
-
-    <div style="background:#2F4A3F; color:#fff; border-radius:10px; padding:16px; position:relative;">
-      <div style="text-align:center; margin-bottom:12px;">
-        <div style="font-size:10px; letter-spacing:1px;">ESCOPO RECORRENTE</div>
-        <div style="font-size:16px; font-weight:700; margin-top:4px;">TAXA ÚNICA</div>
-      </div>
-      <div style="border-top:1px solid rgba(255,255,255,0.3); padding-top:12px; margin-top:16px; text-align:center;">
-        <div style="font-size:20px; font-weight:700;">${formatMoney(c.totalProposta || c.totalSugestao)}</div>
-        <div style="font-size:13px; margin-top:6px;">${formatMoney(c.propostaPorUnidade || c.precoUnidadeSugestao)} / un</div>
-      </div>
-      <div style="position:absolute; right:-10px; bottom:20px; background:#B08D57; color:#fff; width:68px; height:68px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:7px; text-align:center; font-weight:700; padding:4px; line-height:1.15;">
-        ${(c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase().replace(/ /g, "<br>")}
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-top:30px; text-align:center; font-size:11px; font-weight:600; letter-spacing:0.4px; border-top:1px solid #B08D57; border-bottom:1px solid #B08D57; padding:10px 0;">
-    COM A ATLAS HALL O CONDOMÍNIO TERÁ PREVISIBILIDADE, SEM NOVAS TAXAS TODOS OS MESES.
-  </div>
-
-  <div class="footer">
-    <span>ATLAS HALL | ADMINISTRAÇÃO DE CONDOMÍNIOS</span>
-    <span>07 / 09</span>
-  </div>
-</div>
-
-<!-- PÁGINA FINAL -->
-<div class="page" style="display:flex;">
-  <div class="verde" style="width:45%; padding:25mm 12mm; display:flex; flex-direction:column; justify-content:center;">
-    <h1 style="font-size:26px; line-height:1.2; margin-bottom:16px;">Pronto para transformar a gestão do seu patrimônio?</h1>
-    <div style="width:36px; height:2px; background:#B08D57; margin:12px 0;"></div>
-    <div style="font-size:10px; letter-spacing:0.8px; margin-top:16px;">
-      <div style="font-weight:700; margin-bottom:6px;">KELLY VIVIANE | SÓCIA-DIRETORA</div>
-      <div style="margin:3px 0;">+55 51 9 8256 8932</div>
-      <div>KELLY.VIVIANE@ATLASHALL.COM.BR</div>
-    </div>
-    <div style="margin-top:30px; font-size:9px; letter-spacing:1px;">ATLASHALL.COM.BR &nbsp;|&nbsp; @ATLASHALL.ADM</div>
-  </div>
-  <div style="width:55%; background:#222;"></div>
-</div>
-
-<scr' + 'ipt>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); }</scr' + 'ipt>
-</body>
-</html>`;
-
-  const w = window.open("", "_blank");
-  if (w) {
-    w.document.write(html);
-    w.document.close();
-  } else {
-    alert("Permita pop-ups para gerar a proposta.");
-  }
+      const w = window.open("", "_blank");
+      if (w) {
+        w.document.write('<!DOCTYPE html><html><head><title>Proposta - ' + c.nome + '</title><style>body{margin:0;} @media print{svg{width:100%;height:auto;}}</style></head><body>' + svg + '<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print();},500);}</scr' + 'ipt></body></html>');
+        w.document.close();
+      } else {
+        alert("Permita pop-ups para gerar a proposta.");
+      }
+      btn.textContent = "Gerar Proposta (PDF)";
+      btn.disabled = false;
+    })
+    .catch(err => {
+      alert("Erro ao carregar o modelo: " + err.message);
+      btn.textContent = "Gerar Proposta (PDF)";
+      btn.disabled = false;
+    });
 }
 </script>
 </body>
