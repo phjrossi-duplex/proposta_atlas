@@ -679,11 +679,13 @@ function gerarProposta() {
         svg = svg.replace(/R\$ 10,50/g, fmt(c.admPorUnidade));
         svg = svg.replace(/R\$ 4\.104,00/g, fmt(c.totalProposta || c.totalSugestao));
         svg = svg.replace(/R\$ 9,00/g, fmt(c.propostaPorUnidade || c.precoUnidadeSugestao));
-        // Selo: substituir DESCONTO pelo texto do campo
+        // Selo: cobertura e novo texto
         const selo = (c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase();
-        svg = svg.replace(/DESCONTO/g, selo);
-        svg = svg.replace(/R\$ 685,00/g, "");
-        svg = svg.replace(/\(-14,3%\)/g, "");
+        const coverSelo = '<circle cx="1721.56" cy="644.69" r="95" style="fill:#b08d57;"/>';
+        const seloText = '<text transform="translate(1721.56 644.69)" style="fill:#fff; font-family:Montserrat-Bold, Montserrat; font-size:14px; font-weight:700; text-anchor:middle;"><tspan x="0" y="-10">' + selo.substring(0, 12) + '</tspan><tspan x="0" y="10">' + selo.substring(12, 24) + '</tspan><tspan x="0" y="30">' + selo.substring(24) + '</tspan></text>';
+        // Cobertura da frase longa
+        const coverFrase = '<rect x="100" y="760" width="1100" height="50" style="fill:#f6f4ef;"/>';
+        svg = svg.replace('</svg>', coverFrase + coverSelo + seloText + '</svg>');
       }
       svgs.push(svg);
     }
