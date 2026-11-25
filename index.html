@@ -689,7 +689,7 @@ function gerarProposta() {
         // Selo: cobertura e novo texto
         const selo = (c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase();
         const coverSelo = '<circle cx="1721.56" cy="644.69" r="95" style="fill:#b08d57;"/>';
-        const seloText = '<text transform="translate(1721.56 644.69)" style="fill:#fff; font-family:Montserrat-Bold, Montserrat; font-size:14px; font-weight:700; text-anchor:middle;"><tspan x="0" y="-10">' + selo.substring(0, 12) + '</tspan><tspan x="0" y="10">' + selo.substring(12, 24) + '</tspan><tspan x="0" y="30">' + selo.substring(24) + '</tspan></text>';
+        const seloText = '<text transform="translate(1721.56 620)" style="font-family:Montserrat-Bold, Montserrat; font-weight:700; text-anchor:middle;"><tspan x="0" y="0" style="fill:#2f4a3f; font-size:13px;">COM</tspan><tspan x="0" y="16" style="fill:#2f4a3f; font-size:13px;">CONTA</tspan><tspan x="0" y="32" style="fill:#2f4a3f; font-size:13px;">INDIVIDUAL</tspan><tspan x="0" y="55" style="fill:#fff; font-size:18px;">ITAÚ</tspan></text>';
         // Cobertura da frase longa
         const coverFrase = '<rect x="90" y="740" width="1400" height="80" style="fill:#f6f4ef;"/>';
         svg = svg.replace('</svg>', coverFrase + coverAdmTotal + admTotal + coverAdmUn + admUn + coverAtlasTotal + atlasTotal + coverAtlasUn + atlasUn + coverSelo + seloText + '</svg>');
