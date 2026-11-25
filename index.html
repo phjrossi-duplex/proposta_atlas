@@ -671,15 +671,10 @@ function gerarProposta() {
         svg = svg.replace('</svg>', coverRect + nomeOverlay + dataOverlay + '</svg>');
       }
       if (p === "07") {
-        // Nome dividido em tspans: C + o + n + domínio Rivie + r + a
-        svg = svg.replace(/domínio Rivie/g, "domínio " + c.nome.substring(0, Math.min(c.nome.length, 6)));
-        if (c.nome.length > 6) {
-          svg = svg.replace(/>r</g, ">" + c.nome.substring(6, 7) + "<");
-          svg = svg.replace(/>a</g, ">" + c.nome.substring(7) + "<");
-        } else {
-          svg = svg.replace(/>r</g, "><");
-          svg = svg.replace(/>a</g, "><");
-        }
+        // Cobertura e novo título
+        const coverRect7 = '<rect x="100" y="170" width="600" height="50" style="fill:#f6f4ef;"/>';
+        const nomeOverlay7 = '<text transform="translate(109.79 190.2)" style="fill:#2c1e16; font-family:Montserrat-SemiBoldItalic, Montserrat; font-size:52.25px; font-style:italic; font-weight:600;"><tspan x="0" y="0">Condomínio ' + c.nome + '</tspan></text>';
+        svg = svg.replace('</svg>', coverRect7 + nomeOverlay7 + '</svg>');
         svg = svg.replace(/R\$ 4\.789,00/g, fmt(c.admAtual));
         svg = svg.replace(/R\$ 10,50/g, fmt(c.admPorUnidade));
         svg = svg.replace(/R\$ 4\.104,00/g, fmt(c.totalProposta || c.totalSugestao));
