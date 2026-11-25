@@ -664,7 +664,15 @@ function gerarProposta() {
         svg = svg.replace(/13 DE NOVEMBRO DE 2026/g, dataHoje);
       }
       if (p === "07") {
-        svg = svg.replace(/Condomínio Riviera/g, "Condomínio " + c.nome);
+        // Nome dividido em tspans: C + o + n + domínio Rivie + r + a
+        svg = svg.replace(/domínio Rivie/g, "domínio " + c.nome.substring(0, Math.min(c.nome.length, 6)));
+        if (c.nome.length > 6) {
+          svg = svg.replace(/>r</g, ">" + c.nome.substring(6, 7) + "<");
+          svg = svg.replace(/>a</g, ">" + c.nome.substring(7) + "<");
+        } else {
+          svg = svg.replace(/>r</g, "><");
+          svg = svg.replace(/>a</g, "><");
+        }
         svg = svg.replace(/R\$ 4\.789,00/g, fmt(c.admAtual));
         svg = svg.replace(/R\$ 10,50/g, fmt(c.admPorUnidade));
         svg = svg.replace(/R\$ 4\.104,00/g, fmt(c.totalProposta || c.totalSugestao));
