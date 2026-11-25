@@ -672,7 +672,7 @@ function gerarProposta() {
       }
       if (p === "07") {
         // Cobertura e novo título
-        const coverRect7 = '<rect x="100" y="170" width="600" height="50" style="fill:#f6f4ef;"/>';
+        const coverRect7 = '<rect x="90" y="140" width="900" height="100" style="fill:#f6f4ef;"/>';
         const nomeOverlay7 = '<text transform="translate(109.79 190.2)" style="fill:#2c1e16; font-family:Montserrat-SemiBoldItalic, Montserrat; font-size:52.25px; font-style:italic; font-weight:600;"><tspan x="0" y="0">Condomínio ' + c.nome + '</tspan></text>';
         svg = svg.replace('</svg>', coverRect7 + nomeOverlay7 + '</svg>');
         svg = svg.replace(/R\$ 4\.789,00/g, fmt(c.admAtual));
@@ -684,7 +684,7 @@ function gerarProposta() {
         const coverSelo = '<circle cx="1721.56" cy="644.69" r="95" style="fill:#b08d57;"/>';
         const seloText = '<text transform="translate(1721.56 644.69)" style="fill:#fff; font-family:Montserrat-Bold, Montserrat; font-size:14px; font-weight:700; text-anchor:middle;"><tspan x="0" y="-10">' + selo.substring(0, 12) + '</tspan><tspan x="0" y="10">' + selo.substring(12, 24) + '</tspan><tspan x="0" y="30">' + selo.substring(24) + '</tspan></text>';
         // Cobertura da frase longa
-        const coverFrase = '<rect x="100" y="760" width="1100" height="50" style="fill:#f6f4ef;"/>';
+        const coverFrase = '<rect x="90" y="740" width="1400" height="80" style="fill:#f6f4ef;"/>';
         svg = svg.replace('</svg>', coverFrase + coverSelo + seloText + '</svg>');
       }
       svgs.push(svg);
