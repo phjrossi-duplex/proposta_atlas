@@ -675,17 +675,24 @@ function gerarProposta() {
         const coverRect7 = '<rect x="90" y="140" width="900" height="100" style="fill:#f6f4ef;"/>';
         const nomeOverlay7 = '<text transform="translate(109.79 190.2)" style="fill:#2c1e16; font-family:Montserrat-SemiBoldItalic, Montserrat; font-size:52.25px; font-style:italic; font-weight:600;"><tspan x="0" y="0">Condomínio ' + c.nome + '</tspan></text>';
         svg = svg.replace('</svg>', coverRect7 + nomeOverlay7 + '</svg>');
-        svg = svg.replace(/R\$ 4\.789,00/g, fmt(c.admAtual));
-        svg = svg.replace(/R\$ 10,50/g, fmt(c.admPorUnidade));
-        svg = svg.replace(/R\$ 4\.104,00/g, fmt(c.totalProposta || c.totalSugestao));
-        svg = svg.replace(/R\$ 9,00/g, fmt(c.propostaPorUnidade || c.precoUnidadeSugestao));
+        // Valores ADM atual (vermelho)
+        const coverAdmTotal = '<rect x="740" y="570" width="280" height="45" style="fill:#f6f4ef;"/>';
+        const admTotal = '<text transform="translate(773 596)" style="fill:#f90303; font-family:Montserrat-ExtraBold, Montserrat; font-size:26px; font-weight:700;"><tspan x="0" y="0">' + fmt(c.admAtual) + '</tspan></text>';
+        const coverAdmUn = '<rect x="790" y="655" width="220" height="45" style="fill:#f6f4ef;"/>';
+        const admUn = '<text transform="translate(808 682)" style="fill:#f90303; font-family:Montserrat-ExtraBold, Montserrat; font-size:26px; font-weight:700;"><tspan x="0" y="0">' + fmt(c.admPorUnidade) + '</tspan></text>';
+        
+        // Valores Atlas (branco no verde)
+        const coverAtlasTotal = '<rect x="1280" y="570" width="300" height="50" style="fill:#2f4a3f;"/>';
+        const atlasTotal = '<text transform="translate(1315 599)" style="fill:#fff; font-family:Montserrat-ExtraBold, Montserrat; font-size:35px; font-weight:700;"><tspan x="0" y="0">' + fmt(c.totalProposta || c.totalSugestao) + '</tspan></text>';
+        const coverAtlasUn = '<rect x="1360" y="655" width="220" height="45" style="fill:#2f4a3f;"/>';
+        const atlasUn = '<text transform="translate(1387 683)" style="fill:#fff; font-family:Montserrat-ExtraBold, Montserrat; font-size:29px; font-weight:700;"><tspan x="0" y="0">' + fmt(c.propostaPorUnidade || c.precoUnidadeSugestao) + '</tspan></text>';
         // Selo: cobertura e novo texto
         const selo = (c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase();
         const coverSelo = '<circle cx="1721.56" cy="644.69" r="95" style="fill:#b08d57;"/>';
         const seloText = '<text transform="translate(1721.56 644.69)" style="fill:#fff; font-family:Montserrat-Bold, Montserrat; font-size:14px; font-weight:700; text-anchor:middle;"><tspan x="0" y="-10">' + selo.substring(0, 12) + '</tspan><tspan x="0" y="10">' + selo.substring(12, 24) + '</tspan><tspan x="0" y="30">' + selo.substring(24) + '</tspan></text>';
         // Cobertura da frase longa
         const coverFrase = '<rect x="90" y="740" width="1400" height="80" style="fill:#f6f4ef;"/>';
-        svg = svg.replace('</svg>', coverFrase + coverSelo + seloText + '</svg>');
+        svg = svg.replace('</svg>', coverFrase + coverAdmTotal + admTotal + coverAdmUn + admUn + coverAtlasTotal + atlasTotal + coverAtlasUn + atlasUn + coverSelo + seloText + '</svg>');
       }
       svgs.push(svg);
     }
