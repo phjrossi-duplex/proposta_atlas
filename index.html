@@ -664,9 +664,11 @@ function gerarProposta() {
         svg = svg.replace(/CONDOMÍNIO RIVIERA/g, "");
         svg = svg.replace(/13 DE NOVEMBRO DE 2026/g, "");
         // Adicionar novos elementos de texto
+        // Retângulo de cobertura (cor do fundo #f6f4ef)
+        const coverRect = '<rect x="100" y="750" width="500" height="80" style="fill:#f6f4ef;"/>';
         const nomeOverlay = '<text transform="translate(112.11 770.37)" style="fill:#2c1e16; font-family:Montserrat-ExtraBold, Montserrat; font-size:19.68px; font-weight:700;"><tspan x="0" y="0" style="letter-spacing:.25em;">CONDOMÍNIO ' + c.nome.toUpperCase() + '</tspan></text>';
         const dataOverlay = '<text transform="translate(112.13 808.44)" style="fill:#2c1e16; font-family:Montserrat-Bold, Montserrat; font-size:19.68px; font-weight:700;"><tspan x="0" y="0" style="letter-spacing:.25em;">' + dataHoje + '</tspan></text>';
-        svg = svg.replace('</svg>', nomeOverlay + dataOverlay + '</svg>');
+        svg = svg.replace('</svg>', coverRect + nomeOverlay + dataOverlay + '</svg>');
       }
       if (p === "07") {
         // Nome dividido em tspans: C + o + n + domínio Rivie + r + a
