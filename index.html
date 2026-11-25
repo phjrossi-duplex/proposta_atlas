@@ -669,10 +669,11 @@ function gerarProposta() {
         svg = svg.replace(/R\$ 10,50/g, fmt(c.admPorUnidade));
         svg = svg.replace(/R\$ 4\.104,00/g, fmt(c.totalProposta || c.totalSugestao));
         svg = svg.replace(/R\$ 9,00/g, fmt(c.propostaPorUnidade || c.precoUnidadeSugestao));
-        const diff = c.admAtual - (c.totalProposta || c.totalSugestao);
-        const pct = c.admAtual > 0 ? ((diff / c.admAtual) * 100).toFixed(1) : 0;
-        svg = svg.replace(/R\$ 685,00/g, fmt(Math.abs(diff)));
-        svg = svg.replace(/\(-14,3%\)/g, "(" + (diff >= 0 ? "-" : "+") + pct.replace(".", ",") + "%)");
+        // Selo: substituir DESCONTO pelo texto do campo
+        const selo = (c.selo || "COM CONTA INDIVIDUAL ITAÚ").toUpperCase();
+        svg = svg.replace(/DESCONTO/g, selo);
+        svg = svg.replace(/R\$ 685,00/g, "");
+        svg = svg.replace(/\(-14,3%\)/g, "");
       }
       svgs.push(svg);
     }
