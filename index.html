@@ -702,7 +702,12 @@ function gerarProposta() {
   loadAll().then(svgs => {
     const w = window.open("", "_blank");
     if (w) {
-      let html = '<!DOCTYPE html><html><head><title>Proposta - ' + c.nome + '</title>';
+      const hoje = new Date();
+      const ano = hoje.getFullYear().toString().slice(-2);
+      const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+      const dia = String(hoje.getDate()).padStart(2, "0");
+      const nomeArquivo = ano + "." + mes + "." + dia + " - PROPOSTA ATLAS HALL - " + c.nome.toUpperCase();
+      let html = '<!DOCTYPE html><html><head><title>' + nomeArquivo + '</title>';
       html += '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">';
       html += '<style>';
       html += '@page { size: 297mm 167mm; margin: 0; }';
